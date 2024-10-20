@@ -7,7 +7,7 @@ class Amenity(BaseModel):
     def __init__(self, name):
         super().__init__()
         self.name = name
-        Amenity.amenity_registry.append(self)
+        Amenity.amenity_registry.append(self) #Agrega la nueva Amenity a la lista de Amenities
     
     def create(self, name, description):
         return id
@@ -18,5 +18,6 @@ class Amenity(BaseModel):
     def delete(self, id):
         return True
     
+    #Devuelve una lista de todas las Amenities
     def get_amenities():
         return Amenity.amenity_registry

@@ -11,7 +11,7 @@ class User(BaseModel):
         self.email = email
         self.is_admin = is_admin
         self.places = []
-        User.__users__.append(self)
+        User.__users__.append(self) #Añade el nuevo usuario a la lista de Usuarios
 
     def register(self, first_name, email, password):
         return self.id
@@ -22,8 +22,10 @@ class User(BaseModel):
     def delete(self, id):
         return True
     
+    #Agrega el/los lugares en que el User es Owner
     def add_place(self, place):
         self.places.append(place)
 
+    #Devuelve lista de usuarios
     def get_user_list():
         return User.__users__

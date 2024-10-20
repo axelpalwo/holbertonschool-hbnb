@@ -12,8 +12,8 @@ class Place(BaseModel):
         self.latitude = latitude
         self.longitude = longitude
         self.owner = owner #Obj User
-        self.reviews = []
-        self.amenities = []
+        self.reviews = [] #Lista de Reviews
+        self.amenities = [] #Lista de Amenities
 
     def create(self, title, price, latitude, longitude, owner, amenities):
         return id
@@ -24,11 +24,14 @@ class Place(BaseModel):
     def delete(id):
         return True
     
+    #Agregar Review
     def add_review(self, review):
         self.reviews.append(review)
 
+    #Agregar Amenity
     def add_amenity(self, amenity):
         self.amenities.append(amenity)
     
+    #Devuelve una lista de todos los lugares
     def get_places():
         return Place.list_of_places
