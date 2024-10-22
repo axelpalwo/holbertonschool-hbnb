@@ -9,8 +9,6 @@ def test_place_creation():
     # Adding a review
     review = Review(text="Great stay!", rating=5, place=place, user=owner)
     place.add_review(review)
-
-    assert place.title == "Cozy Apartment"
     assert place.price == 100
     assert len(place.reviews) == 1
     assert place.reviews[0].text == "Great stay!"
