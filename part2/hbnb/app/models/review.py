@@ -6,17 +6,25 @@ class Review(BaseModel):
 
     def __init__(self, text, rating, place, user):
         super().__init__()
-        self.text = text
-        self.rating = rating
-        self.place = place #Obj Place
-        self.user = user #Obj User
+        if super().str_validate("review text", text):
+            self.text = text
+        if super().rating_validate(rating):
+            self.rating = rating
+        if super().validate_place(place):
+            self.place = place
+        if super().validate_user(user):
+            self.user = user
         Review.review_list.append(self) #Agrega una Review al crearse a la lista de clase
 
-    def create(self, place, user, rating, comment):
-        return id
-    
     def update(self, id, rating, comment):
-        return True
+        if super().str_validate("comment", comment):
+            review_list = Review.get_review_list()
+            for review in review_list:
+                if review.id == id:
+                    review.rating = rating
+                    review.comment = comment
+                    return True
+        return False
     
     def delete(self, id):
         return True

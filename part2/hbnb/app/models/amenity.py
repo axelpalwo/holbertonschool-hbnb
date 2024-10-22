@@ -6,6 +6,8 @@ class Amenity(BaseModel):
 
     def __init__(self, name):
         super().__init__()
+        if len(name) > 50:
+            raise ValueError("Maximum length of 50 characters")
         self.name = name
         Amenity.amenity_registry.append(self) #Agrega la nueva Amenity a la lista de Amenities
     
