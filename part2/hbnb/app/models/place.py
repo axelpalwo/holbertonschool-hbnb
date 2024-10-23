@@ -45,11 +45,26 @@ class Place(BaseModel):
                     place.price = price
                     if amenities:
                         place.amenities = amenities
+                        super().save()
                     return True
         return False
     
     def delete(id):
-        return True
+        place_to_delete = None
+        for place in Place.__users__:
+            if place.id == id:
+                place_to_delete = place
+                break
+        
+        if place_to_delete:
+            Place.__users__.remove(place_to_delete)
+            return {
+                'first_name': place_to_delete.first_name,
+                'last_name': place_to_delete.last_name,
+                'email': place_to_delete.email
+            }
+        else:
+            raise ValueError(f"Place with id {id} not found.")
     
     #Agregar Review
     def add_review(self, review):

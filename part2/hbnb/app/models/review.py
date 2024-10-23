@@ -22,12 +22,26 @@ class Review(BaseModel):
             for review in review_list:
                 if review.id == id:
                     review.rating = rating
-                    review.comment = comment
+                    review.text = comment
+                    super().save()
                     return True
         return False
     
     def delete(self, id):
-        return True
+        review_to_delete = None
+        for review in Review.review_list:
+            if review.id == id:
+                review_to_delete = review
+                break;
+        if review_to_delete:
+            Review.review_list.remove(review_to_delete)
+            return { 'user': review_to_delete.user,
+                     'place': review_to_delete.place,
+                     'rating': review_to_delete.rating,
+                     'text': review_to_delete.text
+                     }
+        else:
+            raise ValueError(f"Review with id {id} not found.")
     
     #Devuelve una lista de todas las Reviews
     def get_review_list():

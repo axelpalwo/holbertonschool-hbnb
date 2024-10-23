@@ -1,8 +1,6 @@
 import uuid
 from datetime import datetime
 from validate_email_address import validate_email
-from user import User
-from place import Place
 
 class BaseModel:
     def __init__(self):
@@ -50,6 +48,7 @@ class BaseModel:
         return True
     
     def validate_user(self, userObj):
+        from .user import User
         user_list = User.get_user_list()
         for user in user_list:
             if user.id == userObj.id:
@@ -57,6 +56,7 @@ class BaseModel:
         return False
     
     def validate_place(self, place):
+        from .place import Place
         place_list = Place.get_places()
         for placelisted in place_list:
             if placelisted.id == place.id:
