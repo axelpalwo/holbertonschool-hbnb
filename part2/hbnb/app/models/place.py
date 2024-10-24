@@ -15,7 +15,7 @@ class Place(BaseModel):
             if super().str_validate("description", description):
                 self.description = description
         # Validacion de precio
-        if not isinstance(price, int):
+        if not isinstance(price, float):
             raise TypeError("Price must be a number.")
         if price < 0:
             raise ValueError("Price must be a positive number.")
@@ -29,7 +29,10 @@ class Place(BaseModel):
         self.reviews = [] #Lista de Reviews
         self.amenities = [] #Lista de Amenities
     
-    def update(self, id, title, description, price, amenities):
+    def update(self, data):
+        title = data.get('title')
+        description = data.get('description')
+        price = data.get('price')
         if super().str_validate("title", title) and \
         super().str_validate("description", description) and \
         isinstance(price, int):
@@ -43,9 +46,7 @@ class Place(BaseModel):
                     place.title = title
                     place.description = description
                     place.price = price
-                    if amenities:
-                        place.amenities = amenities
-                        super().save()
+                    super().save()
                     return True
         return False
     
@@ -74,6 +75,16 @@ class Place(BaseModel):
     def add_amenity(self, amenity):
         self.amenities.append(amenity)
     
+    def to_dict(self):
+        """Convert the User object into a dictionary format."""
+        return {
+            'id': self.id,
+            'title': self.title,
+            'latitude': self.latitude,
+            'longitude': self.longitude,
+        }
+
     #Devuelve una lista de todos los lugares
+    @staticmethod
     def get_places():
-        return Place.list_of_places
+        return [place.to_dict() for place in Place.list_of_places]

@@ -1,6 +1,7 @@
 from app.persistence.repository import InMemoryRepository
 from app.models.user import User
 from app.models.amenity import Amenity
+from app.models.place import Place
 
 class HBnBFacade:
     def __init__(self):
@@ -13,10 +14,7 @@ class HBnBFacade:
     # =============================== [ USER METHODS ] ===============================
     # Creates an User
     def create_user(self, user_data):
-        new_user = User(
-            first_name=user_data['first_name'],
-            last_name=user_data['last_name'],
-            email=user_data['email'])
+        new_user = User(**user_data)
         self.user_repo.add(new_user)
         return new_user
     
@@ -51,20 +49,35 @@ class HBnBFacade:
                 return user
     
     # =============================== [ PLACE METHODS ] ===============================
+
+    # Creates a new Place
+    def create_place(self, place_data):
+        new_place = Place(**place_data)
+        self.place_repo.add(new_place)
+        return new_place
+
     # Gets a single Place by ID
     def get_place(self, place_id):
         return self.place_repo.get(place_id)
     
-    # Creates a new Place
+    def get_all_places(self):
+        places = self.place_repo.get_all()
+        return [place.to_dict() for place in places]
 
     # Updates a Place
+    def update_place(self, place_id, place_data):
+        return self.place_repo.update(place_id, place_data)
 
     # Deletes a Place
+    def delete_place(self, place_id):
+        return self.place_repo.delete(place_id)
 
     # Add Review to a Place
 
     # Add Amenity to a Place
-# =============================== [ AMENITIES METHODS ] ===============================
+
+
+    # =============================== [ AMENITIES METHODS ] ===============================
 
     # Creates an Amenity
     def create_amenity(self, amenity_data):
@@ -89,3 +102,5 @@ class HBnBFacade:
     # Deletes an Amenity
     def delete_amenity(self, id):
         return self.amenity_repo.delete(id)
+    
+    # =============================== [ REVIEWS METHODS ] ===============================
