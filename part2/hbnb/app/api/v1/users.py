@@ -12,7 +12,7 @@ user_model = api.model('User', {
 
 facade = HBnBFacade()
 
-# POST Sign up / Checks Email registration
+# POST Sign up -> Checks Email registration / GET all User list
 @api.route('/')
 class UserList(Resource):
     @api.expect(user_model, validate=True)
@@ -23,29 +23,17 @@ class UserList(Resource):
         """Register a new user"""
         user_data = api.payload
 
-        # Simulate email uniqueness check (to be replaced by real validation with persistence)
         existing_user = facade.get_user_by_email(user_data['email'])
         if existing_user:
             return {'error': 'Email already registered'}, 400
-
-        new_user = facade.create_user(user_data)
-        return {'id': new_user.id, 'first_name': new_user.first_name, 'last_name': new_user.last_name, 'email': new_user.email}, 201
-
-# GET User by ID
-@api.route('/<user_id>')
-class UserResource(Resource):
-    @api.response(200, 'User details retrieved successfully')
-    @api.response(404, 'User not found')
-    def get(self, user_id):
-        """Get user details by ID"""
-        user = facade.get_user(user_id)
-        if not user:
-            return {'error': 'User not found'}, 404
-        return {'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email}, 200
-
-# GET all users
-@api.route('/')
-class UsersList(Resource):
+        try:
+            new_user = facade.create_user(user_data)
+            return {'id': new_user.id, 'first_name': new_user.first_name, 'last_name': new_user.last_name, 'email': new_user.email}, 201
+        except TypeError as e:
+            return {'error': str(e)}, 400
+        except ValueError as e:
+            return {'error': str(e)}, 400
+        
     @api.response(200, 'Users successfully retrieved')
     @api.response(404, 'No users found')
     def get(self):
@@ -54,12 +42,21 @@ class UsersList(Resource):
         if not users_list:
             return { 'error': 'No users found'}, 404
         return users_list, 200
-# PUT Update User
+        
+# GET User by ID
 @api.route('/<user_id>')
-class UserUpdate(Resource):
-    @api.expect(user_model, validate=True)
+class UserResource(Resource):
+    @api.response(200, 'User details retrieved successfully')
+    @api.response(400, 'Invalid input data')
+    @api.response(404, 'User not found')
+    def get(self, user_id):
+        """Get user details by ID"""
+        user = facade.get_user(user_id)
+        if not user:
+            return {'error': 'User not found'}, 404
+        return {'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email}, 200
+
     @api.response(201, 'User successfully updated')
-    @api.response(400, 'User not found')
     @api.response(400, 'Invalid input data')
     def put(self, user_id):
         """Updates an User"""
@@ -69,21 +66,32 @@ class UserUpdate(Resource):
         existing_user = facade.get_user(user_id)
         if not existing_user:
             return {'error': 'User not found'}, 400
-        
-        upt_user = facade.update_user(existing_user.id, user_data)
-        if upt_user == True:
+        try:
+            facade.update_user(existing_user.id, user_data)
             return { 'message': 'User successfully updated'}, 200
-        else:
-            return { 'error': 'Invalid input data'}, 400
+        except TypeError as e:
+            return { 'error': str(e) }, 400
+        except ValueError as e:
+            return { 'error': str(e) }, 400
+    
+    @api.response(200, 'User details deleted successfully')
+    @api.response(400, 'Invalid input data')
+    def delete(self, user_id):
+        """Get user details by ID"""
+        user = facade.get_user(user_id)
+        if not user:
+            return {'error': 'User not found'}, 404
+        facade.delete_user(user_id)
+        return { 'message': 'User details deleted successfully'}, 200
 
 # PUT Update User places
 @api.route('/add_place') # { 'email': string, 'place_id': string} Email y Nombre del lugar
 class UserAddPlace(Resource):
     @api.expect(user_model, validate=True)
     @api.response(200, 'Place added to the user')
-    @api.response(400, 'User not found')
-    @api.response(400, 'Place not found')
     @api.response(400, 'Invalid input data')
+    @api.response(404, 'User not found')
+    @api.response(404, 'Place not found')
     def put(self):
         """Adds a place to a user"""
         data = api.payload
@@ -94,26 +102,11 @@ class UserAddPlace(Resource):
         # Checks if User exists
         existing_user = facade.get_user_by_email(data['email'])
         if not existing_user:
-            return { 'error': 'User not found' }, 400
+            return { 'error': 'User not found' }, 404
         # Checks if Place exists
         place = facade.get_place(data['place_id'])
         if not place:
-            return { 'error': 'Place not found' }, 400
+            return { 'error': 'Place not found' }, 404
         # We add the place to the User
         facade.add_user_place(existing_user.id, place.id)
         return { 'Place added to the user' }, 200
-
-        
-# DELETE User
-@api.route('/<user_id>')
-class UserDelete(Resource):
-    @api.response(200, 'User details deleted successfully')
-    @api.response(404, 'User not found')
-    def delete(self, user_id):
-        """Get user details by ID"""
-        user = facade.get_user(user_id)
-        if not user:
-            return {'error': 'User not found'}, 404
-        facade.delete_user(user_id)
-        return { 'message': 'User details deleted successfully'}, 200
-    

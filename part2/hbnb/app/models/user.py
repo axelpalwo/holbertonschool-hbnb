@@ -9,7 +9,7 @@ class User(BaseModel):
         if super().str_validate("first_name", first_name) and super().str_validate("last_name", last_name):
             if len(first_name) > 50 and len(last_name) > 50:
                 raise ValueError("Maximum length of 50 characters.")
-        if super().str_validate("email", email):
+        if super().email_validate(email):
             self.first_name = first_name
             self.last_name = last_name
             self.email = email
@@ -18,23 +18,21 @@ class User(BaseModel):
         User.__users__.append(self) #Añade el nuevo usuario a la lista de Usuarios
         
     # Modifica los datos de un usuario
-    def update(self, id, data):
+    def update(self, data):
         first_name = data.get('first_name')
         last_name = data.get('last_name')
         email = data.get('email')
         if super().str_validate("first_name", first_name) and super().str_validate("last_name", last_name):
             if len(first_name) > 50 and len(last_name) > 50:
                 raise ValueError("Maximum length of 50 characters.")
-        if super().str_validate("email", email):
-            user_list = User.get_user_list()
-            for user in user_list:
-                if user.id == id:
-                    self.first_name = first_name
-                    self.last_name = last_name
-                    self.email = email
-                    super().save()
-                    return True
+        if super().email_validate(email):
+            self.first_name = first_name
+            self.last_name = last_name
+            self.email = email
+            super().save()
+            return True
         return False
+    
     # Delete pendiente, buscar otro metodo
     def delete(self, id):
         user_to_delete = None

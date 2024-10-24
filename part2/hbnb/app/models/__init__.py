@@ -20,8 +20,10 @@ class BaseModel:
         self.save()  # Update the updated_at timestamp
 
     def str_validate(self, data_name, string):
-        if not isinstance(string, str) or string == '':
+        if not isinstance(string, str):
             raise TypeError(f"Expected a non-empty string in {data_name}")
+        elif string == '':
+            raise ValueError(f"Expected a string in {data_name}")
         return True
     
     def rating_validate(self, rating):
