@@ -32,24 +32,6 @@ class User(BaseModel):
             super().save()
             return True
         return False
-    
-    # Delete pendiente, buscar otro metodo
-    def delete(self, id):
-        user_to_delete = None
-        for user in User.__users__:
-            if user.id == id:
-                user_to_delete = user
-                break
-        
-        if user_to_delete:
-            User.__users__.remove(user_to_delete)
-            return {
-                'first_name': user_to_delete.first_name,
-                'last_name': user_to_delete.last_name,
-                'email': user_to_delete.email
-            }
-        else:
-            raise ValueError(f"User with id {id} not found.")
 
     #Agrega el/los lugares en que el User es Owner
     def add_place(self, place):
@@ -67,4 +49,4 @@ class User(BaseModel):
     #Devuelve lista de usuarios
     @staticmethod
     def get_user_list():
-        return [user.to_dict() for user in User.__users__]
+        return User.__users__

@@ -41,6 +41,7 @@ class PlaceList(Resource):
         try:
             new_place = facade.create_place(data)
             return {
+                "id": new_place.id,
                 "title": new_place.title,
                 "description": new_place.description or "No description found",
                 "price": new_place.price,
@@ -68,8 +69,28 @@ class PlaceResource(Resource):
     @api.response(404, 'Place not found')
     def get(self, place_id):
         """Get place details by ID"""
-        # Placeholder for the logic to retrieve a place by ID, including associated owner and amenities
-        pass
+        place = facade.get_place(place_id)
+
+        if not place:
+            return { 'error': 'Place not found'}, 404
+        
+        response = {
+        "id": place.id,
+        "title": place.title,
+        "description": place.description,
+        "latitude": place.latitude,
+        "longitude": place.longitude,
+        "owner": {
+            "id": place.owner.id,
+            "first_name": place.owner.first_name,
+            "last_name": place.owner.last_name,
+            "email": place.owner.email
+            },
+        "amenities": [
+            {"id": amenity.id, "name": amenity.name} for amenity in place.amenities
+            ]
+        }
+        return response, 200
 
     @api.expect(place_model)
     @api.response(200, 'Place updated successfully')
@@ -77,5 +98,32 @@ class PlaceResource(Resource):
     @api.response(400, 'Invalid input data')
     def put(self, place_id):
         """Update a place's information"""
-        # Placeholder for the logic to update a place by ID
-        pass
+        place_data = api.payload
+
+        # Checks if Place exists
+        existing_place = facade.get_place(place_id)
+        if not existing_place:
+            return {'error': 'Place not found'}, 400
+        try:
+            facade.update_place(existing_place.id, place_data)
+            return { 'message': 'Place successfully updated'}, 200
+        except TypeError as e:
+            return { 'error': str(e) }, 400
+        except ValueError as e:
+            return { 'error': str(e) }, 400
+        
+@api.route('/<place_id>/reviews')
+class PlaceReviewList(Resource):
+    @api.response(200, 'List of reviews for the place retrieved successfully')
+    @api.response(404, 'Place not found')
+    def get(self, place_id):
+        """Get all reviews for a specific place"""
+        place = facade.get_place(place_id)
+
+        if not place:
+            return { 'error': 'Place not found' }, 404
+        
+        review_list = facade.get_reviews_by_place(place_id)
+        if len(review_list) == 0:
+            return { 'message': 'No reviews in this place' }, 200
+        return review_list, 200

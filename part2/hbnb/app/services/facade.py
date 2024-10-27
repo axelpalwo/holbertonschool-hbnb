@@ -2,6 +2,7 @@ from app.persistence.repository import InMemoryRepository
 from app.models.user import User
 from app.models.amenity import Amenity
 from app.models.place import Place
+from app.models.review import Review
 
 class HBnBFacade:
     def __init__(self):
@@ -50,11 +51,27 @@ class HBnBFacade:
     
     # =============================== [ PLACE METHODS ] ===============================
 
-    # Creates a new Place
     def create_place(self, place_data):
+        owner_id = place_data.pop('owner_id')
+
+        # We get all users to verify user id
+        user_list = User.get_user_list()
+        owner = None
+        for user in user_list:
+            if user.id == owner_id:
+                owner = user
+                break
+
+        # We validate owner
+        if owner is None:
+            raise ValueError(f"User with id {owner_id} not found.")
+
+        # We add 'owner' to dict cause owner_id is not needed anymore
+        place_data['owner'] = owner
         new_place = Place(**place_data)
         self.place_repo.add(new_place)
         return new_place
+
 
     # Gets a single Place by ID
     def get_place(self, place_id):
@@ -62,7 +79,14 @@ class HBnBFacade:
     
     def get_all_places(self):
         places = self.place_repo.get_all()
-        return [place.to_dict() for place in places]
+        return [
+            {
+            "id": place.id,
+            "title": place.title,
+            "latitude": place.latitude,
+            "longitude": place.longitude
+            }
+             for place in places]
 
     # Updates a Place
     def update_place(self, place_id, place_data):
@@ -104,3 +128,67 @@ class HBnBFacade:
         return self.amenity_repo.delete(id)
     
     # =============================== [ REVIEWS METHODS ] ===============================
+    
+    # Creates a review
+    def create_review(self, review_data):
+        # We get user and place id related to the review
+        user_id = review_data.pop('user_id')
+        place_id = review_data.pop('place_id')
+
+        # Verify if User and Place exists
+        user_list = User.get_user_list()
+        r_user = None
+        for user in user_list:
+            if user.id == user_id:
+                r_user = user
+                break
+        places_list = Place.get_places()
+        r_place = None
+        for place in places_list:
+            if place.id == place_id:
+                r_place = place
+                break
+        # If doesn't exist raises ValueError
+        if r_user is None or r_place is None:
+            raise ValueError(f"User with id {user_id} or Place with id {place_id} not found")
+
+        # Preparing review package for instance initialization
+        review_data['user'] = r_user
+        review_data['place'] = r_place
+        new_review = Review(**review_data)
+        self.review_repo.add(new_review)
+        return new_review
+
+    # Gets a Review by ID
+    def get_review(self, review_id):
+        return self.review_repo.get(review_id)
+
+    # Gets all Reviews
+    def get_all_reviews(self):
+        reviews = self.review_repo.get_all()
+        return [
+            {
+                "id": review.id,
+                "text": review.text,
+                "rating": review.rating
+            }
+             for review in reviews]
+
+    # Gets Reviews by Place Attribute
+    def get_reviews_by_place(self, place_id):
+        review_list = Review.get_review_list()
+        return [
+            {
+                "id": review.id,
+                "text": review.text,
+                "rating": review.rating
+            }
+             for review in review_list if review.place.id == place_id]
+
+    # Updates a Review
+    def update_review(self, review_id, review_data):
+        return self.review_repo.update(review_id, review_data)
+
+    # Deletes a Review
+    def delete_review(self, review_id):
+        return self.review_repo.delete(review_id)

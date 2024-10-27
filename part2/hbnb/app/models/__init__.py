@@ -27,9 +27,9 @@ class BaseModel:
         return True
     
     def rating_validate(self, rating):
-        if isinstance(int, rating):
+        if isinstance(rating, int):
             if rating < 1 or rating > 5:
-                raise ValueError(f"The rating should be between 0 and 5")
+                raise ValueError(f"The rating should be between 1 and 5")
             return True
         else:
             raise TypeError("Rating should be a number")
@@ -50,6 +50,7 @@ class BaseModel:
         return True
     
     def validate_user(self, userObj):
+        print("Este es el objeto de Owner", userObj)
         from .user import User
         user_list = User.get_user_list()
         for user in user_list:
