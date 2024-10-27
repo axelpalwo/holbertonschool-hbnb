@@ -21,36 +21,35 @@ class BaseModel:
 
     def str_validate(self, data_name, string):
         if not isinstance(string, str):
-            raise TypeError(f"Expected a non-empty string in {data_name}")
+            raise TypeError("Invalid input data")
         elif string == '':
-            raise ValueError(f"Expected a string in {data_name}")
+            raise ValueError("Invalid input data")
         return True
     
     def rating_validate(self, rating):
         if isinstance(rating, int):
             if rating < 1 or rating > 5:
-                raise ValueError(f"The rating should be between 1 and 5")
+                raise ValueError("Invalid input data")
             return True
         else:
-            raise TypeError("Rating should be a number")
+            raise TypeError("Invalid input data")
     
     def email_validate(self, email):
         if not validate_email(email):
-            raise ValueError("Invalid email address")
+            raise ValueError("Invalid input data")
         return True
     
     def lon_validate(self, longitude):
         if longitude < -180 or longitude > 180:
-            raise ValueError("Invalid longitude")
+            raise ValueError("Invalid input data")
         return True
     
     def lat_validate(self, latitude):
         if latitude < -90 or latitude > 90:
-            raise ValueError("Invalid latitude")
+            raise ValueError("Invalid input data")
         return True
     
     def validate_user(self, userObj):
-        print("Este es el objeto de Owner", userObj)
         from .user import User
         user_list = User.get_user_list()
         for user in user_list:

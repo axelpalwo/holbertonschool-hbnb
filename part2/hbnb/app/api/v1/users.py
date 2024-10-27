@@ -83,30 +83,3 @@ class UserResource(Resource):
             return {'error': 'User not found'}, 404
         facade.delete_user(user_id)
         return { 'message': 'User details deleted successfully'}, 200
-
-# PUT Update User places
-@api.route('/add_place') # { 'email': string, 'place_id': string} Email y Nombre del lugar
-class UserAddPlace(Resource):
-    @api.expect(user_model, validate=True)
-    @api.response(200, 'Place added to the user')
-    @api.response(400, 'Invalid input data')
-    @api.response(404, 'User not found')
-    @api.response(404, 'Place not found')
-    def put(self):
-        """Adds a place to a user"""
-        data = api.payload
-
-        # Checks the req body
-        if not data['email'] or not data['place_id']:
-            return { 'error': 'Invalid input data' }, 400
-        # Checks if User exists
-        existing_user = facade.get_user_by_email(data['email'])
-        if not existing_user:
-            return { 'error': 'User not found' }, 404
-        # Checks if Place exists
-        place = facade.get_place(data['place_id'])
-        if not place:
-            return { 'error': 'Place not found' }, 404
-        # We add the place to the User
-        facade.add_user_place(existing_user.id, place.id)
-        return { 'Place added to the user' }, 200

@@ -8,14 +8,14 @@ class Amenity(BaseModel):
         super().__init__()
         if super().str_validate("name", name):
             if len(name) > 50:
-                raise ValueError("Maximum length of 50 characters.")
+                raise ValueError("Invalid input data")
         self.name = name
         Amenity.amenity_registry.append(self) #Agrega la nueva Amenity a la lista de Amenities
     
     def update(self, name):
         if super().str_validate("name", name):
             if len(name) > 50:
-                raise ValueError("Maximum length of 50 characters.")
+                raise ValueError("Invalid input data")
         self.name = name
         super().save()
         return True
