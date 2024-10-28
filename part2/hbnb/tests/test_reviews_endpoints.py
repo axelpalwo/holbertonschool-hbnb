@@ -27,7 +27,7 @@ class TestPlacesEndpoints(unittest.TestCase):
             "last_name": "Tort",
             "email": "Guuba@gmail.com"
         })
-        if response_user.status_code == 201 and response_owner.status == 201:
+        if response_user.status_code == 201 and response_owner.status_code == 201:
             owner_id = response_owner.get_json().get('id')
             response_place = self.client.post('/api/v1/places/', json={
                     "title": "Cozy Apartment",
