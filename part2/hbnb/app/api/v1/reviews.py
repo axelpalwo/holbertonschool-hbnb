@@ -77,7 +77,7 @@ class ReviewResource(Resource):
         # Checks if Review exists
         existing_review = facade.get_review(review_id)
         if not existing_review:
-            return {'error': 'Review not found'}, 400
+            return {'error': 'Review not found'}, 404
         try:
             facade.update_review(existing_review.id, review_data)
             return { 'message': 'Review successfully updated'}, 200
