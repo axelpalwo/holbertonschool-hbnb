@@ -103,7 +103,7 @@ class PlaceResource(Resource):
         # Checks if Place exists
         existing_place = facade.get_place(place_id)
         if not existing_place:
-            return {'error': 'Place not found'}, 400
+            return {'error': 'Place not found'}, 404
         try:
             facade.update_place(existing_place.id, place_data)
             return { 'message': 'Place successfully updated'}, 200
