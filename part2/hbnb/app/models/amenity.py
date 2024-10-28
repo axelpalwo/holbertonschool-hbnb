@@ -10,7 +10,7 @@ class Amenity(BaseModel):
             if len(name) > 50:
                 raise ValueError("Invalid input data")
         self.name = name
-        Amenity.amenity_registry.append(self) #Agrega la nueva Amenity a la lista de Amenities
+        Amenity.amenity_registry.append(self)
     
     def update(self, name):
         if super().str_validate("name", name):
@@ -33,7 +33,7 @@ class Amenity(BaseModel):
             raise ValueError(f"Amenity with id {id} not found.")
     
     def to_dict(self):
-        """Convert the User object into a dictionary format."""
+        """Convert the Amenity object into a dictionary format."""
         return {
             'id': self.id,
             'name': self.name,

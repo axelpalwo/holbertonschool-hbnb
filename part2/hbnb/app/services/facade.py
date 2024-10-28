@@ -51,6 +51,7 @@ class HBnBFacade:
     
     # =============================== [ PLACE METHODS ] ===============================
 
+    # Creates a Place
     def create_place(self, place_data):
         owner_id = place_data.pop('owner_id')
 
@@ -77,6 +78,7 @@ class HBnBFacade:
     def get_place(self, place_id):
         return self.place_repo.get(place_id)
     
+    # Gets a list of all places
     def get_all_places(self):
         places = self.place_repo.get_all()
         return [
@@ -95,11 +97,6 @@ class HBnBFacade:
     # Deletes a Place
     def delete_place(self, place_id):
         return self.place_repo.delete(place_id)
-
-    # Add Review to a Place
-
-    # Add Amenity to a Place
-
 
     # =============================== [ AMENITIES METHODS ] ===============================
 
@@ -156,6 +153,7 @@ class HBnBFacade:
         review_data['user'] = r_user
         review_data['place'] = r_place
         new_review = Review(**review_data)
+        r_place.add_review(new_review)
         self.review_repo.add(new_review)
         return new_review
 

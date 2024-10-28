@@ -48,20 +48,5 @@ class BaseModel:
         if latitude < -90 or latitude > 90:
             raise ValueError("Invalid input data")
         return True
-    
-    def validate_user(self, userObj):
-        from .user import User
-        user_list = User.get_user_list()
-        for user in user_list:
-            if user.id == userObj.id:
-                return True
-        return False
-    
-    def validate_place(self, place):
-        from .place import Place
-        place_list = Place.get_places()
-        for placelisted in place_list:
-            if placelisted.id == place.id:
-                return True
-        return False
+
 

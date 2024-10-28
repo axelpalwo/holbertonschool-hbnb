@@ -5,8 +5,8 @@ Creating an API similar to the AirBnB webpage, managing Users and Places with Am
 
 ## Team Members
 Axel Palombo - axel.palombo.ap@gmail.com <br>
-Marcos Pessano - <br>
-Rodrigo Novelli - <br>
+Marcos Pessano - marcos.pessano1@gmail.com <br>
+Rodrigo Novelli - Rodrigonovelli21@hotmail.com <br>
 
 ## API Documentation
 https://app.swaggerhub.com/apis/AXELPALOMBOAP/HBNB/1.0.2

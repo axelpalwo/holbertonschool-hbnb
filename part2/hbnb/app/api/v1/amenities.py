@@ -29,6 +29,7 @@ class AmenityList(Resource):
             return {'error': str(e)}, 400
 
     @api.response(200, 'List of amenities retrieved successfully')
+    @api.response(404, 'No amenities found')
     def get(self):
         """Retrieve a list of all amenities"""
         amenities_list = facade.get_all_amenities()
@@ -58,7 +59,7 @@ class AmenityResource(Resource):
         # Checks if User exists
         existing_amenity = facade.get_amenity(amenity_id)
         if not existing_amenity:
-            return {'error': 'Amenity not found'}, 400
+            return {'error': 'Amenity not found'}, 404
         try:
             amenity_name = amenity_data.get('name')
             facade.update_amenity(existing_amenity.id, amenity_name)
@@ -69,7 +70,7 @@ class AmenityResource(Resource):
             return { 'error': str(e) }, 400
         
     @api.response(200, 'Amenity details deleted successfully')
-    @api.response(400, 'Invalid input data')
+    @api.response(404, 'Amenity not found')
     def delete(self, amenity_id):
         """Get user details by ID"""
         amenity = facade.get_amenity(amenity_id)

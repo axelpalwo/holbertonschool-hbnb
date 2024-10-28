@@ -4,7 +4,7 @@ class Place(BaseModel):
 
     list_of_places = []
 
-    def __init__(self, title, description, price, latitude, longitude, owner):
+    def __init__(self, title, description, price, latitude, longitude, owner, amenities):
         super().__init__()
         if super().str_validate("title", title):
             if len(title) > 100:
@@ -26,7 +26,7 @@ class Place(BaseModel):
             self.longitude = longitude
         self.owner = owner #User Obj
         self.reviews = [] #Reviews List
-        self.amenities = [] #Amenities List
+        self.amenities = amenities
         Place.list_of_places.append(self)
     
     def update(self, data):
