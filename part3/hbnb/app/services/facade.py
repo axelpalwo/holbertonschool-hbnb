@@ -38,6 +38,7 @@ class HBnBFacade:
 
     # Gets an User by Email
     def get_user_by_email(self, email):
+        print(f"Usuarios almacenados: {self.user_repo._storage}")
         return self.user_repo.get_by_attribute('email', email)
     
     # Adds a Place to an Owner
@@ -190,3 +191,5 @@ class HBnBFacade:
     # Deletes a Review
     def delete_review(self, review_id):
         return self.review_repo.delete(review_id)
+    
+facade = HBnBFacade()

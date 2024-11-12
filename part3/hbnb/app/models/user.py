@@ -1,10 +1,13 @@
 from . import BaseModel
+from flask_bcrypt import Bcrypt
+
+bcrypt = Bcrypt()
 
 class User(BaseModel):
 
     __users__ = []
 
-    def __init__(self, first_name, last_name, email, is_admin=False):
+    def __init__(self, first_name, last_name, email, password, is_admin=False):
         super().__init__()
         if super().str_validate("first_name", first_name) and super().str_validate("last_name", last_name):
             if len(first_name) > 50 and len(last_name) > 50:
@@ -13,10 +16,18 @@ class User(BaseModel):
             self.first_name = first_name
             self.last_name = last_name
             self.email = email
+        if super().str_validate('password', password):
+            self.hash_password(password)
         self.is_admin = is_admin
         self.places = []
         User.__users__.append(self) #Añade el nuevo usuario a la lista de Usuarios
-        
+    
+    def hash_password(self, password):
+        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
+    
+    def verify_password(self, password):
+        return bcrypt.check_password_hash(self.password, password)
+
     # Modifica los datos de un usuario
     def update(self, data):
         first_name = data.get('first_name')

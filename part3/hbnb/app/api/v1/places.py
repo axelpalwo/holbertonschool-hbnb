@@ -1,5 +1,6 @@
 from flask_restx import Namespace, Resource, fields
-from app.services.facade import HBnBFacade
+from app.services.facade import facade
+
 
 api = Namespace('places', description='Place operations')
 
@@ -26,8 +27,6 @@ place_model = api.model('Place', {
     'owner_id': fields.String(required=True, description='ID of the owner'),
     'amenities': fields.List(fields.String, required=True, description="List of amenities ID's")
 })
-
-facade = HBnBFacade()
 
 @api.route('/')
 class PlaceList(Resource):
