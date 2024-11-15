@@ -72,6 +72,7 @@ class HBnBFacade:
         place_data['owner'] = owner
         new_place = Place(**place_data)
         self.place_repo.add(new_place)
+        owner.add_place(new_place)
         return new_place
 
 

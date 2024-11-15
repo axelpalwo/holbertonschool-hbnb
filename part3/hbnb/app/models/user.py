@@ -32,14 +32,11 @@ class User(BaseModel):
     def update(self, data):
         first_name = data.get('first_name')
         last_name = data.get('last_name')
-        email = data.get('email')
         if super().str_validate("first_name", first_name) and super().str_validate("last_name", last_name):
             if len(first_name) > 50 and len(last_name) > 50:
                 raise ValueError("Maximum length of 50 characters.")
-        if super().email_validate(email):
             self.first_name = first_name
             self.last_name = last_name
-            self.email = email
             super().save()
             return True
         return False
