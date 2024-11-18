@@ -106,10 +106,11 @@ class PlaceResource(Resource):
     def put(self, place_id):
         """Update a place's information"""
         current_user = get_jwt_identity()
+        is_admin = current_user.get('is_admin', False)
         """Register a new place"""
         data = api.payload
 
-        if current_user['id'] != data.get('owner_id'):
+        if not is_admin and current_user['id'] != data.get('owner_id'):
             return {'error': 'Unauthorized action'}, 403
 
         # Checks if Place exists
@@ -124,6 +125,22 @@ class PlaceResource(Resource):
         except ValueError as e:
             return { 'error': str(e) }, 400
         
+    @api.response(200, 'Place deleted successfully')
+    @api.response(404, 'Place not found')
+    @jwt_required()
+    def delete(self, place_id):
+        current_user = get_jwt_identity()
+        is_admin = current_user.get('is_admin', False)
+        """Delete a place"""
+        place = facade.get_place(place_id)
+        if not is_admin and current_user['id'] != place.owner.id:
+            return {'error': 'Unauthorized action'}, 403
+        
+        if not place:
+            return {'error': 'Place not found'}, 404
+        facade.delete_place(place_id)
+        return { 'message': 'Place details deleted successfully'}, 200
+
 @api.route('/<place_id>/reviews')
 class PlaceReviewList(Resource):
     @api.response(200, 'List of reviews for the place retrieved successfully')

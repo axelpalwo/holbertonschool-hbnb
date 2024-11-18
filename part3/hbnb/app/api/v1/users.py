@@ -1,6 +1,18 @@
 from flask_restx import Namespace, Resource, fields
 from app.services.facade import facade
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask import jsonify
+from functools import wraps
+
+def admin_required(func):
+    @wraps(func)
+    @jwt_required()
+    def wrapper(*args, **kwargs):
+        current_user = get_jwt_identity()
+        if not current_user.get('is_admin'):
+            return jsonify({"error": "Admin privileges required"}), 403
+        return func(*args, **kwargs)
+    return wrapper
 
 api = Namespace('users', description='User operations')
 
@@ -22,7 +34,6 @@ class UserList(Resource):
     def post(self):
         """Register a new user"""
         user_data = api.payload
-        print(type(facade))
         existing_user = facade.get_user_by_email(user_data['email'])
         if existing_user:
             return {'error': 'Email already registered'}, 409
@@ -58,34 +69,49 @@ class UserResource(Resource):
     @api.expect(user_model)
     @api.response(200, 'User successfully updated')
     @api.response(400, 'Invalid input data')
+    @api.response(400, 'You cannot modify email or password')
     @api.response(404, 'User not found')
     @api.response(403, 'Unauthorized action')
-    @api.response(400, 'You cannot modify email or password')
     @jwt_required()
     def put(self, user_id):
+        """Updates a User"""
         current_user = get_jwt_identity()
-        """Updates an User"""
         user_data = api.payload
 
-        if user_data.get('id') != current_user['id']:
-            return {'error': 'Unauthorized action'}, 403
-        
-        # Checks if User exists
+        # Verificar si el usuario existe
         existing_user = facade.get_user(user_id)
         if not existing_user:
             return {'error': 'User not found'}, 404
 
-        if user_data.get('email') != existing_user.email or \
-            user_data.get('password') != existing_user.password:
-            return {'error': 'You cannot modify email or password.'}, 400
+        # Verificar permisos para modificar datos
+        is_admin = current_user.get('is_admin', False)
+        if current_user['id'] != user_id and not is_admin:
+            return {'error': 'Unauthorized action'}, 403
 
+        # Validar cambios en email o contraseña (solo admin puede modificar)
+        email_changed = user_data.get('email') and user_data['email'] != existing_user.email
+        password_changed = user_data.get('password') and user_data['password'] != existing_user.password
+
+        if (email_changed or password_changed) and not is_admin:
+            return {'error': 'You cannot modify email or password'}, 400
+
+        if email_changed:
+            email_exist = facade.get_user_by_email(user_data['email'])
+            if email_exist:
+                return {'error': 'Email already registered'}, 409
         try:
+            if password_changed:
+                from flask_bcrypt import Bcrypt
+                bcrypt = Bcrypt()
+                user_data['password'] = bcrypt.generate_password_hash(user_data['password']).decode('utf-8')
+
             facade.update_user(existing_user.id, user_data)
-            return { 'message': 'User successfully updated'}, 200
-        except TypeError as e:
-            return { 'error': str(e) }, 400
-        except ValueError as e:
-            return { 'error': str(e) }, 400
+            return {
+                'message': 'User successfully updated',
+            }, 200
+        except (TypeError, ValueError) as e:
+            return {'error': str(e)}, 400
+
     
     @api.response(200, 'User details deleted successfully')
     @api.response(404, 'User not found')

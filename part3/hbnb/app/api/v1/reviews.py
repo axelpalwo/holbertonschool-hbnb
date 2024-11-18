@@ -90,8 +90,9 @@ class ReviewResource(Resource):
         current_user = get_jwt_identity()
         """Update a review's information"""
         review_data = api.payload
+        is_admin = current_user.get('is_admin', False)
 
-        if current_user['id'] != review_data.get('user_id'):
+        if not is_admin and current_user['id'] != review_data.get('user_id'):
             return {'error': 'Unauthorized action'}, 403
         
         # Checks if Review exists
@@ -111,9 +112,10 @@ class ReviewResource(Resource):
     @jwt_required()
     def delete(self, review_id):
         current_user = get_jwt_identity()
+        is_admin = current_user.get('is_admin', False)
         """Delete a review"""
         review = facade.get_review(review_id)
-        if current_user['id'] != review.user.id:
+        if not is_admin and current_user['id'] != review.user.id:
             return {'error': 'Unauthorized action'}, 403
         
         if not review:

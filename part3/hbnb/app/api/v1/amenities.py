@@ -1,6 +1,19 @@
 from flask_restx import Namespace, Resource, fields
 from app.services.facade import facade
+from flask import jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from functools import wraps
 
+def admin_required(func):
+    @wraps(func)
+    @jwt_required()
+    def wrapper(*args, **kwargs):
+        current_user = get_jwt_identity()
+        print(current_user)
+        if not current_user.get('is_admin'):
+            return jsonify({"error": "Admin privileges required"}), 403
+        return func(*args, **kwargs)
+    return wrapper
 
 api = Namespace('amenities', description='Amenity operations')
 
@@ -12,6 +25,7 @@ amenity_model = api.model('Amenity', {
 # Post Creates an Amenity / Get gets all Amenities
 @api.route('/')
 class AmenityList(Resource):
+    @admin_required
     @api.expect(amenity_model)
     @api.response(201, 'Amenity successfully created')
     @api.response(400, 'Invalid input data')
@@ -48,6 +62,7 @@ class AmenityResource(Resource):
         return { 'id': amenity.id, 'name': amenity.name }, 200
 
     @api.expect(amenity_model)
+    @admin_required
     @api.response(200, 'Amenity updated successfully')
     @api.response(400, 'Invalid input data')
     @api.response(404, 'Amenity not found')
