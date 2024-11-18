@@ -1,46 +1,46 @@
-from . import BaseModel
+from app import db
+from sqlalchemy import Column, Integer, String
+from app.models.baseclass import BaseModel
 
 class Amenity(BaseModel):
+    __tablename__ = 'amenities'
 
-    amenity_registry = []
+    id = Column(Integer, primary_key=True)
+    name = Column(String(50), nullable=False, unique=True)
 
     def __init__(self, name):
-        super().__init__()
-        if super().str_validate("name", name):
-            if len(name) > 50:
-                raise ValueError("Invalid input data")
+        # String validator
+        if not isinstance(name, str):
+            raise TypeError("Invalid input data")
+        elif name == '':
+            raise ValueError("Invalid input data")
+        # Length validator
+        if len(name) > 50:
+            raise ValueError("Amenity name cannot exceed 50 characters.")
         self.name = name
-        Amenity.amenity_registry.append(self)
-    
+
     def update(self, name):
-        if super().str_validate("name", name):
-            if len(name) > 50:
-                raise ValueError("Invalid input data")
+        """Updates Amenity's name"""
+        # String validator
+        if not isinstance(name, str):
+            raise TypeError("Invalid input data")
+        elif name == '':
+            raise ValueError("Invalid input data")
+        # Length validator
+        if len(name) > 50:
+            raise ValueError("Amenity name cannot exceed 50 characters.")
         self.name = name
-        super().save()
+        db.session.commit()
         return True
-    
-    def delete(self, id):
-        amenity_to_delete = None
-        for amenity in Amenity.amenity_registry:
-            if amenity.id == id:
-                amenity_to_delete = amenity
-                break
-        if amenity_to_delete:
-            Amenity.amenity_registry.remove(amenity_to_delete)
-            return { 'name': amenity_to_delete.name }
-        else:
-            raise ValueError(f"Amenity with id {id} not found.")
-    
+
     def to_dict(self):
-        """Convert the Amenity object into a dictionary format."""
+        """Converts Amenity in Dic"""
         return {
             'id': self.id,
             'name': self.name,
         }
 
-    #Devuelve lista de usuarios
     @staticmethod
     def get_amenities():
-        return [amenity.to_dict() for amenity in Amenity.amenity_registry]
-    
+        """Gets all Amenitys from query"""
+        return Amenity.query.all()

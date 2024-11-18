@@ -1,41 +1,60 @@
-from . import BaseModel
+from app import db
+from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy.orm import relationship
+from app.models.baseclass import BaseModel
+
+# Intermediate Table for Places-Amenities
+place_amenity = db.Table('place_amenities',
+    Column('place_id', Integer, ForeignKey('places.id'), primary_key=True),
+    Column('amenity_id', Integer, ForeignKey('amenities.id'), primary_key=True)
+)
 
 class Place(BaseModel):
+    __tablename__ = 'places'
 
-    list_of_places = []
+    id = Column(Integer, primary_key=True)
+    title = Column(String(100), nullable=False)
+    description = Column(String(255), nullable=False)
+    price = Column(Float, nullable=False)
+    latitude = Column(Float, nullable=False)
+    longitude = Column(Float, nullable=False)
+    owner_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    
+    owner = relationship('User', back_populates='places')
+    reviews = relationship('Review', back_populates='place', cascade="all, delete-orphan")
+    amenities = relationship('Amenity', secondary=place_amenity, backref='places')
 
-    def __init__(self, title, description, price, latitude, longitude, owner, amenities):
-        super().__init__()
-        if super().str_validate("title", title):
-            if len(title) > 100:
-                raise ValueError("Maximum length of 100 characters.")
-            self.title = title
-        # If description exists it's validated
+    def __init__(self, title, description, price, latitude, longitude, owner, amenities=None):
+        # Length validator
+        if len(title) > 100:
+            raise ValueError("Maximum length of 100 characters.")
+        self.title = title
+        # If there is a description
         if description:
-            if super().str_validate("description", description):
-                self.description = description
-        # Price validation
-        if not isinstance(price, float):
-            raise TypeError("Price must be a number.")
-        if price < 0:
+            self.description = description
+        # Number validator
+        if not isinstance(price, float) or price < 0:
             raise ValueError("Price must be a positive number.")
         self.price = price
-        if super().lat_validate(latitude):
-            self.latitude = latitude
-        if super().lon_validate(longitude):
-            self.longitude = longitude
-        self.owner = owner #User Obj
-        self.reviews = [] #Reviews List
-        self.amenities = amenities
-        Place.list_of_places.append(self)
-    
+        # Coordinates validator
+        if latitude < -90 or latitude > 90:
+            raise ValueError("Invalid input data")
+        self.latitude = latitude
+
+        if longitude < -180 or longitude > 180:
+            raise ValueError("Invalid input data")
+        self.longitude = longitude
+
+        self.owner = owner
+        self.amenities = amenities or []
+
     def update(self, data):
+        """Updates place's data"""
         title = data.get('title')
         description = data.get('description')
         price = data.get('price')
-        if super().str_validate("title", title) and \
-        super().str_validate("description", description) and \
-        isinstance(price, float):
+        # String and Number validator
+        if title and description and isinstance(price, float):
             if len(title) > 100:
                 raise ValueError("Maximum length of 100 characters.")
             if price < 0:
@@ -43,48 +62,34 @@ class Place(BaseModel):
             self.title = title
             self.description = description
             self.price = price
-            super().save()
+            db.session.commit()
             return True
         return False
-    
-    def delete(id):
-        place_to_delete = None
-        for place in Place.__users__:
-            if place.id == id:
-                place_to_delete = place
-                break
-        
-        if place_to_delete:
-            Place.__users__.remove(place_to_delete)
-            return {
-                'first_name': place_to_delete.first_name,
-                'last_name': place_to_delete.last_name,
-                'email': place_to_delete.email
-            }
-        else:
-            raise ValueError(f"Place with id {id} not found.")
-    
-    # Adds a Place's Review
-    def add_review(self, review):
-        self.reviews.append(review)
 
-    # Adds a Place's Amenity
-    def add_amenity(self, amenity):
-        self.amenities.append(amenity)
-    
+    def delete(self):
+        """Deletes the Place"""
+        db.session.delete(self)
+        db.session.commit()
+
+    def add_amenity(self, amenity_id):
+        """ Adds an Amenity to the Place """
+        if amenity_id not in self.amenities_ids:
+            self.amenities_ids.append(amenity_id)
+
     def to_dict(self):
-        """Convert the Place object into a dictionary format."""
+        """Converts the Place in a Dic"""
         return {
             'id': self.id,
             'title': self.title,
             'description': self.description,
+            'price': self.price,
             'latitude': self.latitude,
             'longitude': self.longitude,
-            'owner': self.owner,
-            'amenities': self.amenities
+            'owner_id': self.owner.id,
+            'amenities': self.amenities_ids
         }
 
-    # Returns a list from all places
     @staticmethod
     def get_places():
-        return Place.list_of_places
+        """Gets a list from all Places"""
+        return Place.query.all()

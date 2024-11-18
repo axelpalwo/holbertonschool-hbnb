@@ -4,6 +4,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask import jsonify
 from functools import wraps
 
+# Admin authenthication decorator
 def admin_required(func):
     @wraps(func)
     @jwt_required()
@@ -27,6 +28,7 @@ user_model = api.model('User', {
 # POST Sign up -> Checks Email registration / GET all User list
 @api.route('/')
 class UserList(Resource):
+    @admin_required
     @api.expect(user_model, validate=True)
     @api.response(201, 'User successfully created')
     @api.response(400, 'Invalid input data')
@@ -78,17 +80,17 @@ class UserResource(Resource):
         current_user = get_jwt_identity()
         user_data = api.payload
 
-        # Verificar si el usuario existe
+        # Checks if User exists
         existing_user = facade.get_user(user_id)
         if not existing_user:
             return {'error': 'User not found'}, 404
 
-        # Verificar permisos para modificar datos
+        # Checks if User is Admin or self
         is_admin = current_user.get('is_admin', False)
         if current_user['id'] != user_id and not is_admin:
             return {'error': 'Unauthorized action'}, 403
 
-        # Validar cambios en email o contraseña (solo admin puede modificar)
+        # Only Admin can update Email or/and Password
         email_changed = user_data.get('email') and user_data['email'] != existing_user.email
         password_changed = user_data.get('password') and user_data['password'] != existing_user.password
 

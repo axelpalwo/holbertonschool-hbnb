@@ -1,34 +1,61 @@
-from . import BaseModel
+from app import db
+from sqlalchemy.orm import relationship, joinedload
+from sqlalchemy import Column, Integer, String, ForeignKey
+from app.models.baseclass import BaseModel
 
 class Review(BaseModel):
+    __tablename__ = 'reviews'
 
-    review_list = []
+    id = Column(Integer, primary_key=True)
+    text = Column(String(500), nullable=False)
+    rating = Column(Integer, nullable=False)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    place_id = Column(Integer, ForeignKey('places.id'), nullable=False)
+
+    user = relationship('User', back_populates='reviews')
+    place = relationship('Place', back_populates='reviews')
 
     def __init__(self, text, rating, place, user):
-        super().__init__()
-        if super().str_validate("review text", text):
+        # String validator
+        if not isinstance(text, str):
+            raise TypeError("Invalid input data")
+        elif text == '':
+            raise ValueError("Invalid input data")
+        else:
             self.text = text
-        if super().rating_validate(rating):
-            self.rating = rating
+        # Number validator
+        if isinstance(rating, int):
+            if rating < 1 or rating > 5:
+                raise ValueError("Invalid input data")
+        else:
+            raise TypeError("Invalid input data")
+        self.rating = rating
         self.place = place
         self.user = user
-        Review.review_list.append(self) #Agrega una Review al crearse a la lista de clase
 
     def update(self, data):
+        """Updates Review's data"""
         text = data.get('text')
         rating = data.get('rating')
-        print(f"El string esta validado: {super().str_validate('text', text)}")
-        print(f"El rating esta validado: {super().rating_validate(rating)}")
-        if super().str_validate("text", text) and super().rating_validate(rating):
-            print("Estoy modificando los datos")
-            self.rating = rating
+        # String validator
+        if not isinstance(text, str):
+            raise TypeError("Invalid input data")
+        elif text == '':
+            raise ValueError("Invalid input data")
+        else:
             self.text = text
-            super().save()
-            return True
-        return False
-    
+        # Number validator
+        if isinstance(rating, int):
+            if rating < 1 or rating > 5:
+                raise ValueError("Invalid input data")
+        else:
+            raise TypeError("Invalid input data")
+        self.rating = rating
+        db.session.commit()
+        return True
+
     def to_dict(self):
-        """Convert the Review object into a dictionary format."""
+        """Converts Review in a Dic"""
         return {
             'id': self.id,
             'text': self.text,
@@ -36,7 +63,8 @@ class Review(BaseModel):
             'user_id': self.user.id,
             'place_id': self.place.id
         }
-    
-    #Devuelve una lista de todas las Reviews
-    def get_review_list():
-        return Review.review_list
+
+    @staticmethod
+    def get_reviews():
+        """Gets a list of all Review's"""
+        return Review.query.options(joinedload(Review.place)).all()

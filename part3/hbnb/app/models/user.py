@@ -1,52 +1,61 @@
-from . import BaseModel
-from flask_bcrypt import Bcrypt
+from app import db, Bcrypt
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, Boolean
+from app.models.baseclass import BaseModel
+from validate_email_address import validate_email
 
 bcrypt = Bcrypt()
 
 class User(BaseModel):
+    __tablename__ = 'users'
 
-    __users__ = []
+    id = Column(Integer, primary_key=True)
+    first_name = Column(String(50), nullable=False)
+    last_name = Column(String(50), nullable=False)
+    email = Column(String(120), nullable=False, unique=True)
+    password = Column(String(128), nullable=False)
+    is_admin = Column(Boolean, default=False)
 
+    places = relationship("Place", back_populates="owner", cascade="all, delete-orphan")
+    reviews = relationship("Review", back_populates="user", cascade="all, delete-orphan")
+    
     def __init__(self, first_name, last_name, email, password, is_admin=False):
-        super().__init__()
-        if super().str_validate("first_name", first_name) and super().str_validate("last_name", last_name):
-            if len(first_name) > 50 and len(last_name) > 50:
-                raise ValueError("Maximum length of 50 characters.")
-        if super().email_validate(email):
-            self.first_name = first_name
-            self.last_name = last_name
-            self.email = email
-        if super().str_validate('password', password):
-            self.hash_password(password)
+        # String validator
+        if first_name == '' or last_name == '' or email == '':
+            raise ValueError("Invalid input data")
+        self.first_name = first_name
+        self.last_name = last_name
+        # Email validator
+        if not validate_email(email):
+            raise ValueError("Invalid input data")
+        self.email = email
         self.is_admin = is_admin
-        self.places = []
-        User.__users__.append(self) #Añade el nuevo usuario a la lista de Usuarios
-    
+        self.hash_password(password)
+
     def hash_password(self, password):
+        """Hashes password"""
         self.password = bcrypt.generate_password_hash(password).decode('utf-8')
-    
+
     def verify_password(self, password):
+        """Compares hashed passwords"""
         return bcrypt.check_password_hash(self.password, password)
 
-    # Modifica los datos de un usuario
     def update(self, data):
+        """Updates User data"""
         first_name = data.get('first_name')
         last_name = data.get('last_name')
-        if super().str_validate("first_name", first_name) and super().str_validate("last_name", last_name):
-            if len(first_name) > 50 and len(last_name) > 50:
-                raise ValueError("Maximum length of 50 characters.")
-            self.first_name = first_name
-            self.last_name = last_name
-            super().save()
-            return True
-        return False
+        if len(first_name) > 50 or len(last_name) > 50:
+            raise ValueError("Maximum length of 50 characters.")
+        self.first_name = first_name
+        self.last_name = last_name
+        db.session.commit()
 
-    #Agrega el/los lugares en que el User es Owner
     def add_place(self, place):
+        """Adds a Place to an User"""
         self.places.append(place)
 
     def to_dict(self):
-        """Convert the User object into a dictionary format."""
+        """Converts User in a Dic"""
         return {
             'id': self.id,
             'first_name': self.first_name,
@@ -54,7 +63,7 @@ class User(BaseModel):
             'email': self.email,
         }
 
-    #Devuelve lista de usuarios
     @staticmethod
     def get_user_list():
-        return User.__users__
+        """Gets a list of all Users"""
+        return User.query.all()

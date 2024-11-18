@@ -75,8 +75,7 @@ class AmenityResource(Resource):
         if not existing_amenity:
             return {'error': 'Amenity not found'}, 404
         try:
-            amenity_name = amenity_data.get('name')
-            facade.update_amenity(existing_amenity.id, amenity_name)
+            facade.update_amenity(existing_amenity.id, amenity_data)
             return { 'message': 'Amenity updated successfully'}, 200
         except TypeError as e:
             return { 'error': str(e) }, 400

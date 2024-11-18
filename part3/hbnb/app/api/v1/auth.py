@@ -14,7 +14,7 @@ login_model = api.model('Login', {
 class Login(Resource):
     @api.expect(login_model)
     def post(self):
-
+        """ Login with Email and Password to receive a Token """
         credentials = api.payload
         user = facade.get_user_by_email(credentials['email'])
         if not user or not user.verify_password(credentials['password']):
@@ -28,6 +28,6 @@ class Login(Resource):
 class ProtectedResource(Resource):
     @jwt_required()
     def get(self):
-
+        """ Security route to check identity """
         current_user = get_jwt_identity()
         return {'message': f'Hello, user {current_user["id"]}'}, 200

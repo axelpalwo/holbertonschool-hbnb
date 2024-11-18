@@ -38,7 +38,6 @@ class HBnBFacade:
 
     # Gets an User by Email
     def get_user_by_email(self, email):
-        print(f"Usuarios almacenados: {self.user_repo._storage}")
         return self.user_repo.get_by_attribute('email', email)
     
     # Adds a Place to an Owner
@@ -176,14 +175,14 @@ class HBnBFacade:
 
     # Gets Reviews by Place Attribute
     def get_reviews_by_place(self, place_id):
-        review_list = Review.get_review_list()
+        review_list = Review.get_reviews()
         return [
             {
                 "id": review.id,
                 "text": review.text,
                 "rating": review.rating
             }
-             for review in review_list if review.place.id == place_id]
+             for review in review_list if str(review.place.id) == place_id]
 
     # Updates a Review
     def update_review(self, review_id, review_data):

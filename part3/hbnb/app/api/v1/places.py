@@ -24,7 +24,7 @@ place_model = api.model('Place', {
     'price': fields.Float(required=True, description='Price per night'),
     'latitude': fields.Float(required=True, description='Latitude of the place'),
     'longitude': fields.Float(required=True, description='Longitude of the place'),
-    'owner_id': fields.String(required=True, description='ID of the owner'),
+    'owner_id': fields.Integer(required=True, description='ID of the owner'),
     'amenities': fields.List(fields.String, required=True, description="List of amenities ID's")
 })
 
@@ -39,8 +39,7 @@ class PlaceList(Resource):
         current_user = get_jwt_identity()
         """Register a new place"""
         data = api.payload
-
-        if current_user['id'] != data.get('owner_id'):
+        if current_user['id'] != str(data.get('owner_id')):
             return {'error': 'Unauthorized action'}, 403
 
         try:
@@ -107,7 +106,6 @@ class PlaceResource(Resource):
         """Update a place's information"""
         current_user = get_jwt_identity()
         is_admin = current_user.get('is_admin', False)
-        """Register a new place"""
         data = api.payload
 
         if not is_admin and current_user['id'] != data.get('owner_id'):
@@ -129,10 +127,11 @@ class PlaceResource(Resource):
     @api.response(404, 'Place not found')
     @jwt_required()
     def delete(self, place_id):
+        """Delete a place"""
         current_user = get_jwt_identity()
         is_admin = current_user.get('is_admin', False)
-        """Delete a place"""
         place = facade.get_place(place_id)
+        
         if not is_admin and current_user['id'] != place.owner.id:
             return {'error': 'Unauthorized action'}, 403
         
@@ -153,6 +152,7 @@ class PlaceReviewList(Resource):
             return { 'error': 'Place not found' }, 404
         
         review_list = facade.get_reviews_by_place(place_id)
+
         if len(review_list) == 0:
             return { 'message': 'No reviews in this place' }, 200
         return review_list, 200
