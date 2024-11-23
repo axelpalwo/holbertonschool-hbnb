@@ -1,0 +1,164 @@
+/* 
+  This is a SAMPLE File to get you started. Follow the instructions on the project to complete the tasks. 
+  You'll probably need to override some of theese styles.
+*/
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f4f4f4;
+    color: #333;
+    min-width: 1275px;
+    max-width: 100vw;
+}
+/* ============= HEADER STYLES ============= */
+header {
+    width: 100vw;
+    height: 10vh;
+    background-color: #f59e3b;
+    color: #fff;
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 1.7rem;
+}
+nav{
+    display: flex;
+    justify-content: space-around;
+    margin-right: 5vw;
+}
+nav a {
+    color: #fff;
+    text-decoration: none;
+    margin-left: 5vw;
+}
+/* ============= HEADER STYLES ============= */
+main {
+    padding: 2rem;
+    width: 100vw;
+}
+a:hover{
+    color: #6e6e6e;
+    transition: 0.5s;
+}
+/* ============= INDEX STYLES ============= */
+h1{
+    text-align: center;
+}
+#filter{
+    display: flex;
+    justify-content: center;
+    padding: 1rem;
+    font-size: 1.3rem;
+}
+label{
+    font-weight: 700;
+}
+#price-filter{
+    margin-left: 0.5rem;
+}
+#places-list{
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.place-box, .review-box{
+    background-color: #fff;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    width: 500px;
+    height: 25vh;
+    margin: 20px;
+    padding: 10px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+.place-title{
+    font-size: 2rem;
+}
+.place-price{
+    font-size: 1.5rem;
+}
+.details-button{
+    width: 30%;
+    padding: 1rem;
+    border-radius: 10px;
+    border-color: transparent;
+    background-color: #f59e3b;
+    color: #fff;
+    font-size: 1.2rem;
+}
+/* ============= INDEX STYLES ============= */
+/* ============= LOGIN STYLES ============= */
+#login-form{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    font-size: 1.3rem;
+}
+form input{
+    padding: 5px;
+}
+form button {
+    padding: 10px;
+    background-color: #f59e3b;
+    color:#fff;
+    border: transparent;
+    border-radius: 5px;
+    font-size: 1.2rem;
+}
+/* ============= LOGIN STYLES ============= */
+footer{
+    background-color: #f59e3b;
+    color: #fff;
+    width: 100vw;
+    height: 10vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+#place-details, #reviews{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+.review-box{
+    align-items: flex-start;
+}
+.review-box p, .review-box strong{
+    margin-left: 25px;
+}
+.review-box div{
+    display: flex;
+    gap: 20px;
+}
+#review-form{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+#review-form form{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+textarea{
+    max-width: 15vw;
+    max-height: 10vh;
+}

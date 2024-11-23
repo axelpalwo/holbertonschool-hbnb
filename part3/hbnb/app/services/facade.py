@@ -86,6 +86,7 @@ class HBnBFacade:
             {
             "id": place.id,
             "title": place.title,
+            "price": place.price,
             "latitude": place.latitude,
             "longitude": place.longitude
             }
