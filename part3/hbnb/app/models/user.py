@@ -23,6 +23,8 @@ class User(BaseModel):
         # String validator
         if first_name == '' or last_name == '' or email == '':
             raise ValueError("Invalid input data")
+        if len(first_name) > 50 or len(last_name) > 50:
+            raise ValueError("Maximum length of 50 characters.")
         self.first_name = first_name
         self.last_name = last_name
         # Email validator
@@ -44,6 +46,10 @@ class User(BaseModel):
         """Updates User data"""
         first_name = data.get('first_name')
         last_name = data.get('last_name')
+        # String validator
+        print(first_name)
+        if first_name == '' or last_name == '':
+            raise ValueError("Invalid input data")
         if len(first_name) > 50 or len(last_name) > 50:
             raise ValueError("Maximum length of 50 characters.")
         self.first_name = first_name

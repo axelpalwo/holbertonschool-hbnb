@@ -108,13 +108,14 @@ class PlaceResource(Resource):
         is_admin = current_user.get('is_admin', False)
         data = api.payload
 
-        if not is_admin and current_user['id'] != data.get('owner_id'):
-            return {'error': 'Unauthorized action'}, 403
-
         # Checks if Place exists
         existing_place = facade.get_place(place_id)
         if not existing_place:
             return {'error': 'Place not found'}, 404
+
+        if not is_admin and current_user['id'] != str(existing_place.owner.id):
+            return {'error': 'Unauthorized action'}, 403
+
         try:
             facade.update_place(existing_place.id, data)
             return { 'message': 'Place successfully updated'}, 200
