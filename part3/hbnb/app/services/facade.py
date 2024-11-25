@@ -155,7 +155,6 @@ class HBnBFacade:
         review_data['user'] = r_user
         review_data['place'] = r_place
         new_review = Review(**review_data)
-        r_place.add_review(new_review)
         self.review_repo.add(new_review)
         return new_review
 
@@ -181,7 +180,8 @@ class HBnBFacade:
             {
                 "id": review.id,
                 "text": review.text,
-                "rating": review.rating
+                "rating": review.rating,
+                "user_id": review.user_id
             }
              for review in review_list if str(review.place.id) == place_id]
 

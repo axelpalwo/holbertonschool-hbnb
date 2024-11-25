@@ -28,7 +28,7 @@ user_model = api.model('User', {
 # POST Sign up -> Checks Email registration / GET all User list
 @api.route('/')
 class UserList(Resource):
-    @admin_required
+    # @admin_required
     @api.expect(user_model, validate=True)
     @api.response(201, 'User successfully created')
     @api.response(400, 'Invalid input data')
